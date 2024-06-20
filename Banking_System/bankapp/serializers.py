@@ -1,5 +1,5 @@
 from rest_framework import serializers
-import re # Here importing Regular expression module for validation
+#import re # Here importing Regular expression module for validation
 from bankapp.models import Bank, Branch, Account, AccountHolder, Transaction
 
 """
@@ -40,48 +40,52 @@ class BankSerializer(serializers.ModelSerializer):
     
     # Here i am creating a validation function for validate all fields of Bank Class Model
     
-    def validate_bank(self, data):
-
-        errors = {}  # declear a empty dictionary for assign errors
+    def validate(self, data):
         
-        # validate bank name
-        bank_name = data.get('bank_name', '').strip()
-        if not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)*$', bank_name): # Here using regular expression for validation bank_name fields
-            errors['bank_name'] = "Bank name should be characters with single spaces between words."
+        errors={}
         
-        # validate bank_id  
-        bank_id = data.get("bank_id", '').strip()
-        if len(bank_id) < 10 or not re.match(r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]*$', bank_id):
-            errors['bank_id'] = "Bank ID must contain at least 10 characters and numbers."
+        # validate bank_name
+        bank_name=data.get('bank_name').strip()
+        if not all(word.isalpha() for word in bank_name.split()):
+            errors['bank_name']="Name should be only char"
         
-        # validate city
-        city=data.get('city','').strip()
-        if not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)*$', city):
-            errors['city']='city must be character with single space between words'
+        # validate bank_id    
+        bank_id=data.get('bank_id').strip()
+        if not bank_id.isalnum() or len(bank_id) !=10 or bank_id.isalpha() or bank_id.isdigit():
+            errors['bank_id']='id should be isalnum without space and min 10 char'
+        
+        # validate city    
+        city=data.get('city').strip()
+        if not all(word.isalpha() for word in city.split()):
+            errors['city']='city name should be only char'
         
         # validate pincode
-        pincode=str(data.get('pincode',''))
-        if len(pincode) !=6 and not pincode.isdigit():
-            errors['pincode']="pincode must be 6 digit"
+        pincode=data.get('pincode')
+        if len(str(pincode)) !=6:
+            errors['pincode']='pincode exactly 6 digit'
         
-        # validate state
-        state=data.get('state','').strip()
-        if not re.match(r'^[A-Za-z]+(?: [A-Za-z]+)*$', state):
-            errors['state']="state must be character with single space beetween words"
+        # validate state    
+        state=data.get('state').strip()
+        if not all(word.isalpha() for word in state.split()):
+            errors['state']='name should be only characters'
         
-        # validate phone number
-        phone=str(data.get("phone",""))
-        if len(phone) !=10 and not phone.isdigit():
-            errors['phone'] ="phone number must be 10 digit"
+        # validate country  
+        country=data.get('country').strip()
+        if not all(word.isalpha() for word in country.split()):
+            errors['country']='Country name should be only character'
         
-        # validate email id  
-        email = data.get("email", "")
+        # validate phone
+        phone=data.get('phone')
+        if len(str(phone)) !=10:
+            errors['phone']="phone number exactly 10 digit"
+            
+        # Validate email
+        email = data.get('email').strip()
         if not email.endswith("@gmail.com"):
             errors["email"] = "Email should end with @gmail.com."
         
-        # If validation is false then execute this condition
         if errors:
-            raise serializers.ValidationError(errors)
+             raise serializers.ValidationError(errors)
         return data
     
     # Here I am defining a function for create/insert/Post the records (rows, objects) & return a new Bank instancein Bank class models
@@ -140,9 +144,18 @@ class BranchSerializer(serializers.ModelSerializer):
         fields='__all__'
         read_only=['id','created_at','update_at']
          
-    # def validate(self, data):
-    #     errors={}
-
+    def validate(self, data):
+        errors={}
+        
+        # validate branch name
+        branch_name=data.get('branch_name').strip()
+        if not all(word.isalpha() for word in branch_name.split()):
+            errors['branch_name']='Name should be character'
+            
+        if errors:
+            raise serializers.ValidationError(errors)
+        
+        return data
     
     def create(self, validated_data):
         """

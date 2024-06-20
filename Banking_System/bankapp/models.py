@@ -1,5 +1,17 @@
 from django.db import models
 
+"""
+# Here We are defining Soft Delete
+class SoftDeleteModel(models.Model):
+    is_deleted = models.BooleanField(default=False)
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.save()
+
+    class Meta:
+        abstract = True
+"""
   #### Here I am using python Class Model with Hard Delete, When we delete Root class models Objects all class models objects references permanantly delete 
   
 class Bank(models.Model):
