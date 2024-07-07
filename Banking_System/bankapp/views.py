@@ -46,8 +46,8 @@ class BankAPI(APIView):
     def patch(self, request, pk=None, format=None):
         if pk is not None:
             try:
-                queryset=Bank.objects.get(id=pk)
-                serializer=BankSerializer(queryset, data=request.data, partial=True)
+                bank_obj=Bank.objects.get(id=pk)
+                serializer=BankSerializer(bank_obj, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
                     return Response({"response":{"status":200,"message":"Bank data Partial updated","payload":serializer.data}}, status=status.HTTP_200_OK)
@@ -59,9 +59,9 @@ class BankAPI(APIView):
     def delete(self, request, pk=None, format=None):
         if pk is not None:
             try:
-                queryset=Bank.objects.get(id=pk)
-                queryset.delete()
-                return Response({"response":{"status":200,"message":"Bank Data has been deleted","payload":queryset}}, status=status.HTTP_200_OK)
+                bank_obj=Bank.objects.get(id=pk)
+                bank_obj.delete()
+                return Response({"response":{"status":200,"message":"Bank Data has been deleted"}}, status=status.HTTP_200_OK)
             except Bank.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
@@ -120,7 +120,7 @@ class BranchAPI(APIView):
             try:
                 queryset=Branch.objects.get(id=pk)
                 queryset.delete()
-                return Response({"response":{"status":200,"message":"Branch Data has been deleted","payload":queryset}}, status=status.HTTP_200_OK)
+                return Response({"response":{"status":200,"message":"Branch Data has been deleted"}}, status=status.HTTP_200_OK)
             except Branch.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
@@ -180,11 +180,10 @@ class AccountAPI(APIView):
             try:
                 queryset=Account.objects.get(id=pk)
                 queryset.delete()
-                return Response({"response":{"status":200,"message":"Account Data has been deleted","dat":queryset}}, status=status.HTTP_200_OK)
+                return Response({"response":{"status":200,"message":"Account Data has been deleted"}}, status=status.HTTP_200_OK)
             except Account.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
-    
     
 class AccountHolderAPI(APIView):
     """
@@ -193,8 +192,8 @@ class AccountHolderAPI(APIView):
     def get(self, request, pk=None, format=None):
         if pk is not None:
             try:
-                queryset=Bank.objects.get(id=pk)
-                serializer=AccountHolderSerializer(queryset)
+                bank_object=AccountHolder.objects.get(id=pk)
+                serializer=AccountHolderSerializer(bank_object)
                 return Response({"response":{"status":200,"message":serializer.data}}, status=status.HTTP_200_OK)  
             except AccountHolder.DoesNotExist:
                 return Response({"response":{"status":404,"error":"Id doesn't exist"}}, status=status.HTTP_404_NOT_FOUND)    
@@ -240,7 +239,7 @@ class AccountHolderAPI(APIView):
             try:
                 queryset=AccountHolder.objects.get(id=pk)
                 queryset.delete()
-                return Response({"response":{"status":200,"message":"Account Holder Data has been deleted","data":queryset}}, status=status.HTTP_200_OK)
+                return Response({"response":{"status":200,"message":"Account Holder Data has been deleted"}}, status=status.HTTP_200_OK)
             except AccountHolder.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
@@ -252,21 +251,25 @@ class TransactionAPI(APIView):
     def get(self, request, pk=None, format=None):
         if pk is not None:
             try:
-                queryset=Transaction.objects.get(id=pk)
-                serializer=TransactionSerializer(queryset)
+                model=Transaction.objects.get(id=pk)
+                serializer=TransactionSerializer(model)
                 return Response({"response":{"status":200,"message":serializer.data}}, status=status.HTTP_200_OK)  
             except Transaction.DoesNotExist:
-                return Response({"response":{"status":404,"error":"Id doesn't exist"}}, status=status.HTTP_404_NOT_FOUND)    
+                return Response({"response":{"status":404,"error":"Id doesn't exist"}}, status=status.HTTP_404_NOT_FOUND)
+                
         queryset=Transaction.objects.all()
-        serializer=Transaction(queryset, many=True)
+        serializer=TransactionSerializer(queryset, many=True)
         return Response({"response":{"status":200,"message":serializer.data}}, status=status.HTTP_200_OK)
         
     def post(self, request, format=None):
-        serializer=TransactionSerializer(data=request.data)
+        serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response({"response":{"status":200,"message":"Data inserted successfully","data":serializer.data}}, status=status.HTTP_200_OK)
-        return Response({"response":{"status":400,"errors":serializer.errors}}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.save()
+                return Response({"response": {"status": 200, "message": "Data inserted successfully", "data": serializer.data}}, status=status.HTTP_200_OK)
+            except ValueError as e:
+                return Response({"response": {"status": 400, "errors": str(e)}}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"response": {"status": 400, "errors": serializer.errors}}, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, pk=None, format=None):
         if pk is not None:
@@ -299,7 +302,7 @@ class TransactionAPI(APIView):
             try:
                 queryset=Transaction.objects.get(id=pk)
                 queryset.delete()
-                return Response({"response":{"status":200,"message":"transaction Data has been deleted","data":queryset}}, status=status.HTTP_200_OK)
+                return Response({"response":{"status":200,"message":"transaction Data has been deleted"}}, status=status.HTTP_200_OK)
             except Transaction.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)

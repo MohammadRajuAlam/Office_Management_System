@@ -55,7 +55,7 @@ class Bank(models.Model):
             }
         )
     is_active=models.BooleanField(default=True)
-    about=models.TextField(null=True,blank=True)
+    about=models.TextField(null=True, blank=True)
     created_at=models.DateField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
     
@@ -105,7 +105,9 @@ class Account(models.Model):
             "unique":"account number is already exist"
         }
         )
-    balance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    balance=models.FloatField(
+        default=0
+        )
     ACCOUNT_TYPES=(
         ('Saving','Saving'),
         ('Current','Current'),
@@ -163,8 +165,8 @@ class Transaction(models.Model):
     account_number=models.ForeignKey(Account, on_delete=models.CASCADE) # Hard Delete
     TRANSACTION_TYPES=(
         ('Deposit','Deposit'),
-        ('Withdrow','Withdrow')
-        )
+        ('Withdraw','Withdraw')
+        ) # Credit and Debit
     transaction_type=models.CharField(
         max_length=20, 
         choices=TRANSACTION_TYPES
@@ -176,5 +178,17 @@ class Transaction(models.Model):
         )
     transaction_date=models.DateTimeField(auto_now_add=True)
     
+    # Here Create a function for Transaction the amount and update the balance
+    def save(self, *args, **kwargs):
+        if self.transaction_type == 'Deposit':
+            self.account_number.balance += self.amount
+        elif self.transaction_type == 'Withdraw':
+            if self.account_number.balance < self.amount:
+                raise ValueError("Insufficient balance")
+            self.account_number.balance -= self.amount
+        self.account_number.save()
+        super(Transaction, self).save(*args, **kwargs)
+    
     def __str__(self):
         return f'{self.transaction_type} {self.amount}'
+    
