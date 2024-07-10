@@ -8,6 +8,7 @@ from employeeapp.views import (
     DepartmentEmployeesAPIView,
     DepartmentSingleEmployeeAPIView,
     EmployeeDetailsListCreateAPIView,
+    EmployeeSingleDetailsAPIView,
     EmployeeDetailsRetrieveUpdateDestroyAPIView,
     ProjectListCreateAPIView,
     ProjectRetrieveUpdateAPIView,
@@ -19,6 +20,7 @@ from employeeapp.views import (
     AccountRetrieveUpdateDestroyAPIView,
     SalaryListCreateAPIView,
     SalaryRetrieveUpdateDestroyAPIView)
+
 
 urlpatterns = [
     
@@ -40,7 +42,8 @@ urlpatterns = [
     path('employeeDetails/', EmployeeDetailsListCreateAPIView.as_view(), name='EmployeeDetails-list-create'),
     path('employeeDetails/<int:pk>/', EmployeeDetailsRetrieveUpdateDestroyAPIView.as_view(), name='EmployeeDetails-Details'),
     
-    # Custome API URLs
+    # Custome URLs to get single EmployeeDetails of a specific Employee
+    path("employees/<int:emp_pk>/employeedetails/<int:emp_detl_pk>/", EmployeeSingleDetailsAPIView.as_view(), name='Employee-EmployeeDetails'),
     
     # Create project URLs
     path('project/', ProjectListCreateAPIView.as_view(), name='Project-list-create'),

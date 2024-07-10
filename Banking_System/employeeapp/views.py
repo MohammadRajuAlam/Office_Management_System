@@ -16,6 +16,11 @@ class DepartmentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     queryset=Department.objects.all()
     serializer_class=DepartmentSerializer
     
+    # Here writing custome message inside generic if ID doen't exit then show the message
+    #???????????????????????????????????????????
+    def get_object(self):
+          pass
+    
 # Create Employee API Views
 class EmployeeListCreateAPI(generics.ListCreateAPIView):
     queryset=Employee.objects.all()
@@ -30,17 +35,16 @@ class DepartmentEmployeesAPIView(APIView):
     
     def get(self, request, pk=None): # Here pk is department id that is primary (auto generated id) in department table
         
-        if pk is not None:
-            try:
-                department = Department.objects.get(id=pk) # Here id is department id that is primary (auto generated id) in department table
-            except Department.DoesNotExist:
-                return Response({'Response': {"status": 400, "errors": "Given department ID doesn't Exist."}}, status=status.HTTP_404_NOT_FOUND)
+        if pk is None:
+            return Response({"Response": {"status": 400, "errors": "Please Provide Department ID"}}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            department = Department.objects.get(id=pk) # Here id is department id that is primary (auto generated id) in department table
+        except Department.DoesNotExist:
+            return Response({'Response': {"status": 404, "errors": "Given department ID doesn't Exist."}}, status=status.HTTP_404_NOT_FOUND)
         
-            employees = Employee.objects.filter(department=department)
-            serializer = EmployeeSerializer(employees, many=True)
-            return Response({"response": {"status": 200, "data": serializer.data}}, status=status.HTTP_200_OK)
-        
-        return Response({"Response": {"status": 400, "errors": "Please Provide Department ID"}}, status=status.HTTP_400_BAD_REQUEST) 
+        employees = Employee.objects.filter(department=department)
+        serializer = EmployeeSerializer(employees, many=True)
+        return Response({"response": {"status": 200, "data": serializer.data}}, status=status.HTTP_200_OK) 
         
 # Custom API View to get a single employee in a department
 
@@ -57,12 +61,11 @@ class DepartmentSingleEmployeeAPIView(APIView):
         
         try:
             employee = Employee.objects.get(id=empl_pk, department=department) # Here id is employees id that is primary (auto generated id) in employees table
+            serializer = EmployeeSerializer(employee)
+            return Response({"response": {"status": 200, "data": serializer.data}}, status=status.HTTP_200_OK)
         except Employee.DoesNotExist:
             return Response({'Response': {"status": 400, "errors": "Given Employee ID doesn't Exist in the specified Department."}}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = EmployeeSerializer(employee)
-        return Response({"response": {"status": 200, "data": serializer.data}}, status=status.HTTP_200_OK)
-    
 # Create Employee Details API Views
 class EmployeeDetailsListCreateAPIView(generics.ListCreateAPIView):
     queryset=EmployeeDetails.objects.all()
@@ -72,7 +75,27 @@ class EmployeeDetailsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     queryset=EmployeeDetails.objects.all()
     serializer_class=EmployeeDetailsSerializer
     
-# Custom API View to get single employeesDetails in a A
+# Custom API View to get single employeesDetails in a Employeee
+
+class EmployeeSingleDetailsAPIView(APIView):
+    def get(self, request, emp_pk=None, emp_detl_pk=None):
+        
+        if emp_pk is None:
+            return Response({"response":{'status':400,"errors":"Please Provide Employee ID"}}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            employee=Employee.objects.get(id=emp_pk)
+        except Employee.DoesNotExist:
+                return Response({"response":{"status":404, "errors":"Employee ID doesn't Exist."}}, status=status.HTTP_404_NOT_FOUND)
+            
+        if emp_detl_pk is None:
+            return Response({"response":{'status':400,"errors":"Please Provide Employee details ID"}}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            employeedetails=EmployeeDetails.objects.get(id=emp_detl_pk, employee=employee)
+            serializer=EmployeeDetailsSerializer(employeedetails)
+            return Response({"response":{"status":200,"data":serializer.data}}, status=status.HTTP_200_OK)
+          
+        except EmployeeDetails.DoesNotExist:
+            return Response({"response":{"status":404,"errors":"Employee Detatails ID doen't Exist"}}, status=status.HTTP_404_NOT_FOUND)
 
 # create project API Views
 class ProjectListCreateAPIView(generics.ListCreateAPIView):
