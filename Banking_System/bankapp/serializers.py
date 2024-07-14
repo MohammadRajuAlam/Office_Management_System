@@ -56,27 +56,34 @@ class BankSerializer(serializers.ModelSerializer):
         if bank_id is not None:
             bank_id=bank_id.strip()
             if not bank_id.isalnum() or len(bank_id) !=10 or bank_id.isalpha() or bank_id.isdigit():
-                errors['bank_id']='id should be isalnum without space and min 10 char'
+                errors['bank_id']='Bank ID should be character with number and only 10 values'
+        
+        # ????????????
+        address = data.get('address', None) 
+        if address is not None:
+            address = address.strip()
+            if address.isdigit(): # Here do Validations for float, if you insert 45.60 it accept.
+                errors['address'] = "Address can't only number."
         
         # validate city    
-        city=data.get('city',None)
+        city = data.get('city',None)
         if city is not None:
-            city=city.strip()
+            city = city.strip()
             if not all(word.isalpha() for word in city.split()):
-                errors['city']='city name should be only char'
+                errors['city']='city name should be character.'
         
         # validate pincode
-        pincode=data.get('pincode',None)
+        pincode = data.get('pincode',None)
         if pincode is not None:
             if len(str(pincode)) !=6:
-                errors['pincode']='pincode exactly 6 digit'
+                errors['pincode'] = 'pincode should be only 6 digit.'
         
         # validate state    
-        state=data.get('state',None)
+        state = data.get('state',None)
         if state is not None:
-            state=state.strip()
+            state = state.strip()
             if not all(word.isalpha() for word in state.split()):
-                errors['state']='name should be only characters'
+                errors['state'] = 'name should be characters'
             
         # validate country  
         country=data.get('country',None)
@@ -86,18 +93,24 @@ class BankSerializer(serializers.ModelSerializer):
                 errors['country']='Country name should be only character'
         
         # validate phone
-        phone=data.get('phone',None)
+        phone = data.get('phone',None)
         if phone is not None:
-            if len(str(phone)) !=10 or not str(phone).isdigit():
-                errors['phone']="phone number exactly 10 digit"
+            if not len(str(phone)) !=10 or not isinstance(phone, int):
+                errors['phone']="Phone number exactly 10 digit."
             
         # Validate email
         email = data.get('email',None)
         if email is not None:
             email=email.strip()
             if not email.endswith("@gmail.com"):
-                errors["email"] = "Email should end with @gmail.com."
-        
+                errors["email"] = "Email should be end with @gmail.com."
+                
+        # ????????????
+        about = data.get('about', None) 
+        if about is not None:
+            about = about.strip()
+            if about.isdigit():    # Here do Validations for float, if you insert 45.60 it accept.
+                errors['about'] = "Here you can't write only digit."
         if errors:
              raise serializers.ValidationError(errors)
         return data
@@ -117,6 +130,7 @@ class BankSerializer(serializers.ModelSerializer):
         instance.bank_name=validated_data.get('bank_name', instance.bank_name)  # Here updating every fields manually
         instance.bank_type=validated_data.get('bank_type', instance.bank_type)
         instance.address=validated_data.get('address', instance.address)
+        instance.city=validated_data.get('city', instance.city)
         instance.pincode=validated_data.get('pincode', instance.pincode)
         instance.state=validated_data.get('state', instance.state)
         instance.country=validated_data.get('country', instance.country)
@@ -169,24 +183,24 @@ class BranchSerializer(serializers.ModelSerializer):
             if not all(word.isalpha() for word in branch_name.split()):
                 errors['branch_name']='Name should be character'
         
-        # validate branch_id    
+        # validate branch_id
         branch_id=data.get('branch_id', None)
         if branch_id is not None:
             branch_id=branch_id.strip()
             if len(branch_id) !=10 or not all(word.isalnum() for word in branch_id) or branch_id.isalpha() or branch_id.isdigit():
-                errors['branch_id']='branch_id must be contains char and number with 10 elements'
+                errors['branch_id']='branch_id must be character with number and 10 values.'
         
-        # validate the Address  
-        address=data.get('address', None)
+        # ???????????????????????????????????? 
+        address = data.get('address', None)    
         if address is not None:
-            address=address.strip() 
-            if address.isdigit():
-                errors['address']="address can't only Digit"
+            address = address.strip() 
+            if address.isdigit(): # Here do Validations for float, if you insert 45.60 it accept. so this logical errors
+                errors['address']="Address can't only Digit."
         
         # validate pincode  
         pincode=data.get('pincode', None)
         if pincode is not None:
-            if len(str(pincode)) !=6:
+            if len(str(pincode)) !=6 or not isinstance(pincode, int):
                 errors['pincode']="pincode exactly 6 digit"
         
         # validate country    
@@ -199,7 +213,7 @@ class BranchSerializer(serializers.ModelSerializer):
         # validate phone
         phone=data.get('phone')
         if phone is not None:
-            if len(str(phone)) !=10:
+            if len(str(phone)) !=10 or not isinstance(phone, int):
                 errors['phone']='phone number must be 10 digit'
 
         # validate email
@@ -208,7 +222,6 @@ class BranchSerializer(serializers.ModelSerializer):
             email=email.strip()
             if not email.endswith('@gmail.com'):
                 errors['email']='email should endwith @gmail.com'
-            
         if errors:
             raise serializers.ValidationError(errors)
         return data
@@ -250,7 +263,6 @@ class AccountSerilizer(serializers.ModelSerializer):
         if balance is not None:
             if  balance < 0: # OR if not isinstance(balance, (int, float)) or balance < 0:
                 errors['balance'] = "Amount should be a positive number."
-        
         if errors:
             raise serializers.ValidationError(errors)
         return data
@@ -288,58 +300,57 @@ class AccountHolderSerializer(serializers.ModelSerializer):
         # Validate DOB (choose DOB who has complete 18 yrs from today date)
         date_of_birth = data.get('date_of_birth', None)
         if date_of_birth is not None:
-            if date_of_birth:
-                if date_of_birth > date.today():
-                    errors['date_of_birth'] = 'Date of birth cannot be in the future'
-                elif date_of_birth > date.today() - timedelta(days=18*365):
-                    errors['date_of_birth'] = 'Account holder must be at least 18 years old'
+            if date_of_birth > date.today():
+                errors['date_of_birth'] = "Date of birth can't be in the future."
+            elif date_of_birth > date.today() - timedelta(days=18*365):
+                errors['date_of_birth'] = 'Account holder must be at least 18 years old.'
                     
         father_name=data.get('father_name', None)
         if father_name is not None:
             father_name=father_name.strip()
             if not all(word.isalpha() for word in father_name.split()):
-                errors['father_name']='Name should be character'
+                errors['father_name']='Father name should be character.'
                 
         mother_name=data.get('mother_name', None)
         if mother_name is not None:
             mother_name=mother_name.strip()    
             if not all(word.isalpha() for word in mother_name.split()):
-                errors['mother_name']='Name should be character'
+                errors['mother_name']='Mother name should be character.'
                 
         qualification=data.get('qualification', None)
         if qualification is not None:
             qualification=qualification.strip()    
             if not all(word.isalpha() for word in qualification.split()):
-                errors['qualification']='qualification should be character'
+                errors['qualification']='Qualification should be character.'
                 
         address=data.get('address', None)
         if address is not None:
             address=address.strip()    
             if address.isdigit():
-                errors['address']="address can't only Digit"
+                errors['address']="Address can't only Digit."
                 
         city=data.get('city', None)
         if city is not None:
             city=city.strip()
             if not all(word.isalpha() for word in city.split()):
-                errors['city']='Name should be character'
+                errors['city']='City name should be character.'
                 
         pincode=data.get('pincode', None) 
         if pincode is not None:    
             if len(str(pincode)) !=6 or pincode < 0:
-                errors['pincode']='pincode should be 6 digit'
+                errors['pincode']='PinCode should be 6 digit.'
                 
         state=data.get('state', None)
         if state is not None:
             state=state.strip()
             if not all(word.isalpha() for word in state.split()):
-                errors['state']='Name should be character'
+                errors['state']='State name should be character.'
                 
         country=data.get('country', None)
         if country is not None:
             country=country.strip()
             if not all(word.isalpha() for word in country.split()):
-                errors['country']='Name should be character'
+                errors['country']='Country name should be character.'
             
         phone=data.get('phone', None)
         if phone is not None:
@@ -350,11 +361,9 @@ class AccountHolderSerializer(serializers.ModelSerializer):
         if email is not None:
             email=email.strip()
             if not email.endswith("@gmail.com"):
-                errors['email']='email must be endwith @gmail.com.'
-            
+                errors['email']='email must be endwith @gmail.com.'            
         if errors:
             raise serializers.ValidationError(errors)
-        
         return data    
     
     def create(self, validated_data):
@@ -391,13 +400,12 @@ class TransactionSerializer(serializers.ModelSerializer):
 
         amount = data.get('amount', None)
         if amount is not None:
-            if amount <= 0 or not isinstance(amount, (int, float, decimal.Decimal)):
+            if amount <= 0 or not isinstance(amount, (int, float)):
                 errors['amount'] = "Amount should be a positive number."
 
         account = data.get('account_number')
         if account and data['transaction_type'] == 'Withdraw' and account.balance < data['amount']:
             errors['amount'] = "Insufficient balance."
-
         if errors:
             raise serializers.ValidationError(errors)
         return data
@@ -415,4 +423,4 @@ class TransactionSerializer(serializers.ModelSerializer):
         instance.transaction_type=validated_data.get('transaction_type', instance.transaction_type)
         instance.amount=validated_data.get('amount', instance.amount)
         instance.save()
-        return instance
+        return instance 

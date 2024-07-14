@@ -75,9 +75,12 @@ class EmployeeDetailsRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroy
     queryset=EmployeeDetails.objects.all()
     serializer_class=EmployeeDetailsSerializer
     
-# Custom API View to get single employeesDetails in a Employeee
+# Custom API View to get single Employee Single employeesDetails
 
 class EmployeeSingleDetailsAPIView(APIView):
+    """
+    SingleEmploye_SingleEmployeeDetails API
+    """
     def get(self, request, emp_pk=None, emp_detl_pk=None):
         
         if emp_pk is None:

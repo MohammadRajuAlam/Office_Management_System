@@ -171,11 +171,7 @@ class Transaction(models.Model):
         max_length=20, 
         choices=TRANSACTION_TYPES
         )
-    amount=models.DecimalField(
-        max_digits=30,
-        decimal_places=3,
-        default=0
-        )
+    amount=models.FloatField(default=0)
     transaction_date=models.DateTimeField(auto_now_add=True)
     
     # Here Create a function for Transaction the amount and update the balance

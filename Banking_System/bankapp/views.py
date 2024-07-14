@@ -5,13 +5,12 @@ from rest_framework.views import APIView
 from bankapp.models import Bank, Branch, Account, AccountHolder, Transaction
 from bankapp.serializers import BankSerializer, BranchSerializer, AccountSerilizer, AccountHolderSerializer, TransactionSerializer
 
-####  Here I am using only Class APIView from Rest_Framework
-
+# Here Using only Class APIView from Rest_Framework
 class BankAPI(APIView): 
     """
     Bank API
     """
-    def get(self, request, pk=None, format=None):
+    def get(self, request, pk=None, format=None):  # Here format is optional in DRF
         if pk is not None:
             try:
                 bank=Bank.objects.get(id=pk)
@@ -125,6 +124,26 @@ class BranchAPI(APIView):
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
     
+# Here Create Custome or Filter APIs Get single bank with all/signle Branch
+class BankBranchAPIView(APIView):
+    def get(self, request, pk=None, branch_pk=None): # Here having 2 pks, pk is bank id and branch_pk is branch id
+        
+        try:
+            bank = Bank.objects.get(id=pk)
+        except Bank.DoesNotExist:
+            return Response({"response":{"status":404,"errors":"Bank ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
+        if branch_pk is None: 
+            branch = Branch.objects.filter(bank = bank) # Here get single Bank with all branch
+            serializer_class = BranchSerializer(branch, many = True)
+            return Response({"response":{"status":200,"payload":serializer_class.data}}, status = status.HTTP_200_OK)
+        try:
+            branch = Branch.objects.get(id=branch_pk, bank=bank)
+            serializer_class = BranchSerializer(branch)
+            return Response({"response":{"status":200, "payload":serializer_class.data}}, status=status.HTTP_200_OK)
+        except Branch.DoesNotExist:
+            return Response({"response":{"status":404,"errors":"Branch ID doen't exist."}}, status=status.HTTP_404_NOT_FOUND)
+     
 class AccountAPI(APIView):
     """
     Account API
@@ -184,7 +203,34 @@ class AccountAPI(APIView):
             except Account.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+# Here Create Custome API Filter Single Branch with All Accounts and single account
+class BranchAccountAPIView(APIView):
+    """
+    SingleBranch-AllAccounts OR SingleBranch-SingleAccount APIs
+    """
+    def get(self, request, pk=None, acc_pk=None):
+        # Check if the branch exists
+        try:
+            branch = Branch.objects.get(id=pk)
+        except Branch.DoesNotExist:
+            return Response({"response": {"status": 404, "errors": "Branch ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Fetch accounts based on whether acc_pk is provided or not
+        if acc_pk is None:
+            # Fetch all accounts for the branch
+            accounts = Account.objects.filter(branch=branch)
+            serializer = AccountSerilizer(accounts, many=True)
+            return Response({"response": {"status": 200, "payload": serializer.data}}, status=status.HTTP_200_OK)
+        
+        # Fetch a specific account for the branch
+        try:
+            account = Account.objects.get(id=acc_pk, branch=branch)
+            serializer = AccountSerilizer(account)
+            return Response({"response": {"status": 200, "data": serializer.data}}, status=status.HTTP_200_OK)
+        except Account.DoesNotExist:
+            return Response({"response": {"status": 404, "errors": "Account ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+            
 class AccountHolderAPI(APIView):
     """
     AccountHolder API
@@ -243,7 +289,31 @@ class AccountHolderAPI(APIView):
             except AccountHolder.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+# Here Create Holder with Account APIs like Holder/id/account or/account/id
+
+class HolderAccountAPIView(APIView):
+    """
+    AccountHolder and Account APIs
+    """
+    def get(self, request, pk=None, acc_pk=None):
+        
+        try:
+            accountholder = AccountHolder.objects.get(id=pk) 
+        except AccountHolder.DoesNotExist:
+            return Response({"response":{"status":404, "errors":"Account holder ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
+        if acc_pk is None:
+            account = Account.objects.filter(accountholder=accountholder)
+            serializers_class = AccountSerilizer(account, many=True) 
+            return Response({"response":{"status":200, "payload":serializers_class.data}}, status=status.HTTP_200_OK)
+        try:
+            account = Account.objects.get(id=acc_pk)
+            serializers_class = AccountSerilizer(account) 
+            return Response({"response":{"status":200, "payload":serializers_class.data}}, status=status.HTTP_200_OK) 
+        except Account.DoesNotExist:
+            return Response({"response":{"status":404, "errors":"Account ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
 class TransactionAPI(APIView):
     """
     Transaction API
@@ -306,3 +376,30 @@ class TransactionAPI(APIView):
             except Transaction.DoesNotExist:
                 return Response ({"response":{"status":404,"error":"ID Doesn't Exist"}}, status=status.HTTP_404_NOT_FOUND)
         return Response({"response":{"status":400, "error":"please provide ID"}}, status=status.HTTP_400_BAD_REQUEST)
+    
+# Here Create Custome API for Account with Transactions
+class AccountTransactionAPIView(APIView):
+    """
+    Account and Transaction APIs
+    """
+    def get(self, request, pk=None, trans_pk=None, format=None):
+        # Check if the account exists
+        try:
+            account = Account.objects.get(id=pk)
+        except Account.DoesNotExist:
+            return Response({"response": {"status": 404, "errors": "Account ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Fetch transactions based on whether trans_pk is provided or not
+        if trans_pk is None:
+            # Fetch all transactions for the account
+            transactions = Transaction.objects.filter(account_number=account)
+            serializer = TransactionSerializer(transactions, many=True)
+            return Response({"response": {"status": 200, "payload": serializer.data}}, status=status.HTTP_200_OK)
+        
+        # Fetch a specific transaction for the account
+        try:
+            transaction = Transaction.objects.get(id=trans_pk, account_number=account)
+            serializer = TransactionSerializer(transaction)
+            return Response({"response": {"status": 200, "payload": serializer.data}}, status=status.HTTP_200_OK)
+        except Transaction.DoesNotExist:
+            return Response({"response": {"status": 404, "errors": "Transaction ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
