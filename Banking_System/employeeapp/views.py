@@ -41,7 +41,7 @@ class DepartmentEmployeeAPIVie(APIView):
             return Response ({"response":{"status":404, "errors":"Department ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
         
         if empl_pk is None:
-            employee = Employee.objects.filter(department=department_obj) # Here department is a foreign key field name with department model of Employee model
+            employee = Employee.objects.filter(department=department_obj) # Here department is a foreign key field name with department model of Employee model. Note you can check(see) in Employee model
             serializer_class = EmployeeSerializer(employee, many=True)
             return Response ({"response":{"status":200, "payload":serializer_class.data}}, status=status.HTTP_200_OK)
         try:
@@ -108,7 +108,7 @@ class EmployeeProjectAPIView(APIView):
         
         # Handle Projects
         if pro_pk is None:
-            project = Project.objects.filter(employee=employee_obj) # Here employee is a foreign key field of Employee models, see in Project models
+            project = Project.objects.filter(employee=employee_obj) # Here employee is a foreign key field name with Employee models of Project models. Note you can see in Project models
             serializer = ProjectSerializer(project, many=True)
             return Response({"response": {"status": 200, "payload": serializer.data}}, status=status.HTTP_200_OK)
         try:
@@ -192,6 +192,30 @@ class AccountRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     queryset=Account.objects.all()
     serializer_class=AccountSerializer
     
+# Here Created customs API to Get a specific Employee with single/all Account
+class EmployeeAccountAPIView(APIView):
+    """
+    Employee with Account APIs
+    """
+    def get(self, request, pk=None, acc_pk=None):
+        
+        try:
+            employee_obj = Employee.objects.get(id=pk)
+        except Employee.DoesNotExist:
+            return Response({"response":{"status":404, "errors":"Employee ID doen't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
+        if acc_pk is None:
+            account_obj = Account.objects.filter(employee=employee_obj) # Here employee is a foreign key field name with Employee models of Account model 
+            serializer_class = AccountSerializer(account_obj, many=True)
+            return Response({"response":{"status":200, "payload":serializer_class.data}}, status=status.HTTP_200_OK)
+        
+        try:
+            account_obj = Account.objects.get(id=acc_pk, employee=employee_obj)
+            serializer_class = AccountSerializer(account_obj)
+            return Response({"response":{"status":200, "payload":serializer_class.data}}, status=status.HTTP_200_OK)
+        except Account.DoesNotExist:
+            return Response({"response":{"status":404, "errors":"Account ID doen't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
 class SalaryListCreateAPIView(generics.ListCreateAPIView):
     queryset=Salary.objects.all()
     serializer_class=SalarySerializer
@@ -199,3 +223,26 @@ class SalaryListCreateAPIView(generics.ListCreateAPIView):
 class SalaryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset=Account.objects.all()
     serializer_class=AccountSerializer
+    
+# Here Created customs API to Get a specific Employee with single/all Salary
+class EmployeeSalaryAPIView(APIView):
+    """
+    Employee with Salary APIs
+    """
+    def get(self, request, pk=None, sal_pk=None):
+        try:
+            employee_object = Employee.objects.get(id=pk)
+        except Employee.DoesNotExist:
+            return Response({"response": {"status": 404, "errors": "Employee ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)
+        
+        if sal_pk is None:
+            salary_objects = Salary.objects.filter(employee=employee_object)
+            serializer = SalarySerializer(salary_objects, many=True)
+            return Response({"response": {"status": 200, "payload": serializer.data}}, status=status.HTTP_200_OK)
+        
+        try:
+            salary_object = Salary.objects.get(id=sal_pk, employee=employee_object)
+            serializer = SalarySerializer(salary_object)
+            return Response({"response": {"status": 200, "payload": serializer.data}}, status=status.HTTP_200_OK)
+        except Salary.DoesNotExist:
+            return Response({"response": {"status": 404, "errors": "Salary ID doesn't exist."}}, status=status.HTTP_404_NOT_FOUND)

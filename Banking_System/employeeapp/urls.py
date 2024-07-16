@@ -20,8 +20,10 @@ from employeeapp.views import (
     EmployeeAttendanceAPIView,
     AccountListCreateAPIView,
     AccountRetrieveUpdateDestroyAPIView,
+    EmployeeAccountAPIView,
     SalaryListCreateAPIView,
     SalaryRetrieveUpdateDestroyAPIView,
+    EmployeeSalaryAPIView,
     )
 
 urlpatterns = [
@@ -68,9 +70,14 @@ urlpatterns = [
     path('account/', AccountListCreateAPIView.as_view(), name='All-Account-List'),
     path('account/<int:pk>/', AccountRetrieveUpdateDestroyAPIView.as_view(), name='Specific-Account-list'),
     # Custome URLs to get single/All Account of a specific Employee
+    path('employees/<int:pk>/account/',EmployeeAccountAPIView.as_view(), name='Specific-Employee-all-account-list'), # Here having one to one Relationship Account to employee model so here display only one account num.
+    path('employees/<int:pk>/account/<int:acc_pk>/',EmployeeAccountAPIView.as_view(), name='Specific-Employee-all-account-list'),
     
     # Here Created Salary URLs
     path('salary/', SalaryListCreateAPIView.as_view(), name='All-Salary-List'),
     path('salary/<int:pk>/',SalaryRetrieveUpdateDestroyAPIView.as_view(), name='Specific-Salary-list'),
-   
+    # Custome URLs to get single/All Salary of a specific Employee
+    path('employees/<int:pk>/salary/', EmployeeSalaryAPIView.as_view(), name='Specific-Employee-All-salary'),
+    path('employees/<int:pk>/salary/<int:sal_pk>/', EmployeeSalaryAPIView.as_view(), name='Specific-Employee-All-salary')
+    
 ]
