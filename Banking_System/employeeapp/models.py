@@ -14,10 +14,9 @@ class SoftDeleteModel(models.Model):
     def delete(self, using=None, keep_parents=False):
         self.is_deleted = True
         self.save()
-
     class Meta:
-        abstract = True
-        
+        abstract = True 
+         
 # Here I am creating Office Management System Models
 class Department(SoftDeleteModel):
     department_name = models.CharField(
@@ -90,7 +89,8 @@ class Employee(SoftDeleteModel):
     
     def __str__(self):
         
-        return f"{self.first_name+' '+self.last_name}"
+        #return f"{self.first_name+' '+self.last_name}"
+        return f"{self.id} {self.first_name}"
 
 class EmployeeDetails(SoftDeleteModel):
     employee_aadhaar = models.PositiveBigIntegerField(
