@@ -4,6 +4,8 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from employeeapp.models import  Department, Employee, EmployeeDetails, Project, Task, Attendance, Account, Salary
 from employeeapp.serializers import DepartmentSerializer, EmployeeSerializer, EmployeeDetailsSerializer, ProjectSerializer, TaskSerializer, AttendanceSerializer, AccountSerializer, SalarySerializer
+# from rest_framework.authentication import BasicAuthentication
+# from rest_framework.permissions import IsAuthenticated
 
 # Here Creating Generics APIViews for all models
 
@@ -17,7 +19,7 @@ class DepartmentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     serializer_class=DepartmentSerializer
     
     #???????????????????????????????????????????
-    # Here write custome message inside generic if ID doen't exit then show the message
+    # Here write custome message inside generic if ID doesn't exit then show the message
     
 # Create Employee API Views
 class EmployeeListCreateAPI(generics.ListCreateAPIView):

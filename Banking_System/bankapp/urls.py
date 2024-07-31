@@ -10,6 +10,7 @@ urlpatterns = [
     # Here custome URLs like bank/{bank_id}/branch
     path('banks/<int:pk>/branch/', BankBranchAPIView.as_view(), name="SingleBank-AllBranches"),
     path('banks/<int:pk>/branch/<int:branch_pk>/', BankBranchAPIView.as_view(), name='SingleBank-SingleBranch'),
+    
     path('accounts/', AccountAPI.as_view(), name='AccountAPI'),     # Here access all accounts
     path('accounts/<int:pk>/', AccountAPI.as_view(), name='AccountAPI'), # Here access a specific account
     # Here custome URLs like Branch/{branch_id}/Accounts

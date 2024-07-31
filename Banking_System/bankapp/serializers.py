@@ -48,6 +48,7 @@ class BankSerializer(serializers.ModelSerializer):
         bank_name=data.get('bank_name',None) # Here taking None because when we do partial update that time don't fetch any error
         if bank_name is not None:
             bank_name=bank_name.strip()
+            #bank_name = bank_name.isupper()
             if not all(word.isalpha() for word in bank_name.split()):
                 errors['bank_name']="Name should be only char"
         
@@ -95,7 +96,7 @@ class BankSerializer(serializers.ModelSerializer):
         # validate phone
         phone = data.get('phone',None)
         if phone is not None:
-            if not len(str(phone)) !=10 or not isinstance(phone, int):
+            if len(str(phone)) !=10: #or not isinstance(phone, int):
                 errors['phone']="Phone number exactly 10 digit."
             
         # Validate email
@@ -167,6 +168,7 @@ class BranchSerializer(serializers.Serializer):
 # OR
 
 class BranchSerializer(serializers.ModelSerializer):
+    bank = serializers.StringRelatedField()  # Here show bank's name directly and name (banl) should be same which is related in relationship (foreignkey ec) fields. Note: The StringRelatedField for the bank field will use the __str__ method of the Bank model, which returns the bank's name.
     class Meta:
         model=Branch
         fields='__all__'
@@ -244,6 +246,7 @@ class BranchSerializer(serializers.ModelSerializer):
         return instance
     
 class AccountSerilizer(serializers.ModelSerializer):
+    branch = serializers.StringRelatedField()  # Here branch is foreignfield name and name should be same
     class Meta:
         model=Account
         fields='__all__'
@@ -281,6 +284,7 @@ class AccountSerilizer(serializers.ModelSerializer):
         return instance
 
 class AccountHolderSerializer(serializers.ModelSerializer):
+    account_number = serializers.StringRelatedField() # Here Account_number is OneToOnefield name
     class Meta:
         model=AccountHolder
         fields='__all__'
@@ -390,6 +394,7 @@ class AccountHolderSerializer(serializers.ModelSerializer):
         return instance
     
 class TransactionSerializer(serializers.ModelSerializer):
+    account_number = serializers.StringRelatedField()
     class Meta:
         model=Transaction
         fields='__all__'
@@ -423,4 +428,4 @@ class TransactionSerializer(serializers.ModelSerializer):
         instance.transaction_type=validated_data.get('transaction_type', instance.transaction_type)
         instance.amount=validated_data.get('amount', instance.amount)
         instance.save()
-        return instance 
+        return instance

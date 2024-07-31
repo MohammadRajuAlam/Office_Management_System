@@ -4,9 +4,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from bankapp.models import Bank, Branch, Account, AccountHolder, Transaction
 from bankapp.serializers import BankSerializer, BranchSerializer, AccountSerilizer, AccountHolderSerializer, TransactionSerializer
+#from rest_framework.authentication import BasicAuthentication
+#from rest_framework.permissions import IsAuthenticated
 
 # Here Using only Class APIView from Rest_Framework
-class BankAPI(APIView): 
+class BankAPI(APIView):
     """
     Bank API
     """

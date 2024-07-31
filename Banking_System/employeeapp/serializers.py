@@ -57,6 +57,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         return data
     
 class EmployeeSerializer(serializers.ModelSerializer):
+    department = serializers.StringRelatedField()
     class Meta:
         model=Employee
         fields='__all__'
@@ -138,6 +139,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         return data
     
 class EmployeeDetailsSerializer(serializers.ModelSerializer):
+    employee = serializers.StringRelatedField()
     class Meta:
         model=EmployeeDetails
         fields='__all__'
@@ -207,6 +209,8 @@ class EmployeeDetailsSerializer(serializers.ModelSerializer):
         return data
         
 class ProjectSerializer(serializers.ModelSerializer):
+    employee = serializers.StringRelatedField()
+    department = serializers.StringRelatedField()
     class Meta:
         model=Project
         fields='__all__'
@@ -259,6 +263,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         return data
     
 class TaskSerializer(serializers.ModelSerializer):
+    project = serializers.StringRelatedField()
+    assigned_to = serializers.StringRelatedField()
     class Meta:
         model=Task
         fields='__all__'
@@ -303,6 +309,7 @@ class TaskSerializer(serializers.ModelSerializer):
         return data
 
 class AttendanceSerializer(serializers.ModelSerializer):
+    employee = serializers.StringRelatedField()
     class Meta:
         model=Attendance
         fields='__all__'
@@ -322,6 +329,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
         return data
         
 class AccountSerializer(serializers.ModelSerializer):
+    employee = serializers.StringRelatedField()
     class Meta:
         model=Account
         fields='__all__'
@@ -352,6 +360,8 @@ class AccountSerializer(serializers.ModelSerializer):
         return data
     
 class SalarySerializer(serializers.ModelSerializer):
+    account_number = serializers.StringRelatedField()
+    employee = serializers.StringRelatedField()
     class Meta:
         model=Salary
         fields='__all__'

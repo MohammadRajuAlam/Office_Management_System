@@ -65,6 +65,7 @@ class Employee(SoftDeleteModel):
             'unique': 'Given ID is already used.'
         }
     )
+    emp_salary = models.CharField(max_length=50, null=True, blank=True)
     designation = models.CharField(max_length=50)
     total_experience = models.FloatField(default=0)
     date_of_join = models.DateField()
@@ -85,12 +86,12 @@ class Employee(SoftDeleteModel):
     is_working_here = models.BooleanField(default=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    department = models.ForeignKey(Department, on_delete=models.PROTECT)
+    department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='department')
     
     def __str__(self):
         
-        #return f"{self.first_name+' '+self.last_name}"
-        return f"{self.id} {self.first_name}"
+        return f"{self.first_name+' '+self.last_name}"
+        #return f"{self.id} {self.first_name}"
 
 class EmployeeDetails(SoftDeleteModel):
     employee_aadhaar = models.PositiveBigIntegerField(
@@ -116,7 +117,7 @@ class EmployeeDetails(SoftDeleteModel):
     date_of_birth = models.DateField()
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    employee = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='employeedetails')
     
     def __str__(self):
         return f'{self.employee_aadhaar}'
@@ -134,10 +135,10 @@ class Project(SoftDeleteModel):
     start_date = models.DateField()
     end_date = models.DateField()
     description = models.CharField(max_length=255)
-    employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    employee = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='project')
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    department = models.ForeignKey(Department, on_delete=models.PROTECT)
+    department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='project')
     
     def __str__(self):
         return f'{self.project_name}'
@@ -151,7 +152,7 @@ class Task(SoftDeleteModel):
             'unique': 'Task ID already exists.'
         }
     )
-    project = models.ForeignKey(Project, on_delete=models.PROTECT)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, related_name='task')
     TASK_STATUS = [
         ('Pending', 'Pending'),
         ('In Progress', 'In Progress'),
@@ -163,7 +164,7 @@ class Task(SoftDeleteModel):
     task_description = models.CharField(max_length=255)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    assigned_to = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    assigned_to = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='task')
     
     def __str__(self):
         return f'{self.task_name}'
@@ -178,7 +179,7 @@ class Attendance(SoftDeleteModel):
     attendance_status = models.CharField(max_length=20, choices=ATTENDANCE_STATUS)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    employee = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='attendance')
     
     def __str__(self):
         return f'{self.date} {self.employee}'
@@ -202,17 +203,17 @@ class Account(SoftDeleteModel):
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    employee = models.OneToOneField(Employee, on_delete=models.PROTECT)
+    employee = models.OneToOneField(Employee, on_delete=models.PROTECT, related_name='account')
     
     def __str__(self):
         return f'{self.account_number} {self.bank_name}'
 
 class Salary(SoftDeleteModel):
     amount = models.FloatField(default=0)
-    account_number = models.ForeignKey(Account, on_delete=models.PROTECT)
+    account_number = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='salary')
     date = models.DateField(auto_now_add=True)
     remark = models.CharField(max_length=100, null=True, blank=True)
-    employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    employee = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='salary')
 
     def __str__(self):
         return f'{self.amount}'

@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime, timedelta
 
 # Here I am using python Class Model with Hard Delete, When we delete Root class models Objects, all class models objects references permanantly delete 
   
@@ -49,6 +50,7 @@ class Bank(models.Model):
     
     def __str__(self):
         return f'{self.bank_name}'
+        # OR return f'{self.id} {self.bank_name}'
     
 class Branch(models.Model):
     branch_name=models.CharField(max_length=100)
@@ -59,35 +61,35 @@ class Branch(models.Model):
             "unique":"Given Branch Id is already used."
             }
         )
-    address=models.CharField(max_length=255)
-    pincode=models.IntegerField()
-    country=models.CharField(
-        max_length=50,
+    address = models.CharField(max_length=255)
+    pincode = models.IntegerField()
+    country = models.CharField(
+        max_length = 50,
         default='India'
         )
-    phone=models.PositiveBigIntegerField(
-        unique=True,
-        error_messages={
+    phone = models.PositiveBigIntegerField(
+        unique = True,
+        error_messages = {
             "unique":"Given Phone number is already used in Branch"
             }
     )
-    email=models.EmailField(
-        max_length=40,
-        unique=True,
-        error_messages={
+    email = models.EmailField(
+        max_length = 40,
+        unique = True,
+        error_messages = {
             "unique":"Given Email ID is already used in Branch"
             }
         )
-    is_active=models.BooleanField(default=True)
-    bank=models.ForeignKey(Bank, on_delete=models.CASCADE)
-    created_at=models.DateField(auto_now_add=True)
-    update_at=models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    bank = models.ForeignKey(Bank, on_delete=models.CASCADE, related_name='branch')
+    created_at = models.DateField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f'{self.branch_name}'
     
 class Account(models.Model):
-    account_number=models.PositiveBigIntegerField(
+    account_number = models.PositiveBigIntegerField(
         unique=True,
         error_messages={
             "unique":"account number is already exist"
@@ -105,7 +107,7 @@ class Account(models.Model):
         max_length=30,
         choices=ACCOUNT_TYPES
         )
-    branch=models.ForeignKey(Branch, on_delete=models.CASCADE)
+    branch=models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='Account')
     is_active=models.BooleanField(default=True)
     create_at=models.DateField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
@@ -118,7 +120,7 @@ class Account(models.Model):
     
 class AccountHolder(models.Model):
     holder_name=models.CharField(max_length=30)
-    account_number=models.OneToOneField(Account, on_delete=models.CASCADE) # Here Hard Delete
+    account_number=models.OneToOneField(Account, on_delete=models.CASCADE, related_name='accountholder') # Here Hard Delete and holder_name is a related name of Account table
     date_of_birth=models.DateField() # Here Need validation, Don't take future date for DOB
     father_name=models.CharField(max_length=30)
     mother_name=models.CharField(max_length=30)
@@ -146,11 +148,13 @@ class AccountHolder(models.Model):
     created_at=models.DateField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
     
+    # Here you can write validation for Date of birth
+    
     def __str__(self):
         return f'{self.holder_name}'
     
 class Transaction(models.Model):
-    account_number=models.ForeignKey(Account, on_delete=models.CASCADE) # Hard Delete
+    account_number=models.ForeignKey(Account, on_delete=models.CASCADE, related_name='transaction')
     TRANSACTION_TYPES=(
         ('Deposit','Deposit'),
         ('Withdraw','Withdraw')

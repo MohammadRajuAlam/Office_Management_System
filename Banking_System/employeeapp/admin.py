@@ -10,7 +10,7 @@ class DepartmentAdmin(admin.ModelAdmin):
     
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display=['id','first_name','middle_name','last_name','designation','department','total_experience','date_of_join','highest_degree','phone','email','is_working_here','created_at','updated_at']
+    list_display=['id','first_name','middle_name','last_name','designation','emp_salary','department','total_experience','date_of_join','highest_degree','phone','email','is_working_here','created_at','updated_at']
     
 @admin.register(EmployeeDetails)
 class EmployeedetailsAdmin(admin.ModelAdmin):
